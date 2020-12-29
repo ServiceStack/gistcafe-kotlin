@@ -74,7 +74,7 @@ bintray {
     pkg.apply {
         repo = "maven"
         name =  artifactId
-        userOrg = orgName
+        userOrg = "servicestack"
         websiteUrl = "https://gist.cafe"
         githubRepo = repoName
         vcsUrl = "https://github.com/$repoName"
