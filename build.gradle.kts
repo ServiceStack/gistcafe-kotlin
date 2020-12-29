@@ -1,3 +1,5 @@
+import java.util.*
+
 plugins {
     kotlin("jvm") version "1.4.21"
     java
@@ -16,18 +18,23 @@ repositories {
     jcenter()
 }
 
-val sourcesJar by tasks.creating(Jar::class) {
-    archiveClassifier.set("sources")
-    from(sourceSets.getByName("main").allSource)
+tasks {
+    create<Jar>("sourceJar") {
+        archiveClassifier.set("sources")
+        from(sourceSets["main"].allSource)
+    }
+    withType<Jar> {
+        archiveBaseName.set(artifactId)
+    }
 }
 
 publishing {
     publications {
-        register("gpr", MavenPublication::class) {
+        create<MavenPublication>("mavenJava") {
             from(components["java"])
-
-            artifact(sourcesJar)
-
+            artifact(tasks["sourceJar"])
+            artifactId = artifactId
+            version = artifactVersion
             pom {
                 name.set(artifactId)
                 description.set(shortDesc)
@@ -36,6 +43,7 @@ publishing {
                     license {
                         name.set("The 3-Clause BSD License")
                         url.set("https://opensource.org/licenses/BSD-3-Clause")
+                        distribution.set("repo")
                     }
                 }
                 developers {
@@ -70,25 +78,34 @@ bintray {
     user = System.getenv("BINTRAY_USER")
     key = System.getenv("BINTRAY_APIKEY")
     publish = true
-    setPublications(artifactId)
+    setConfigurations("archives")
+
     pkg.apply {
         repo = "maven"
         name =  artifactId
-        userOrg = "servicestack"
+        userOrg = orgName.toLowerCase()
+
         websiteUrl = "https://gist.cafe"
+        issueTrackerUrl = "https://github.com/$repoName/issues"
         githubRepo = repoName
         vcsUrl = "https://github.com/$repoName"
         description = shortDesc
-        setLabels("kotlin")
-        setLicenses("BSD")
+        setLabels("servicestack","gistcafe","kotlin")
+        setLicenses("BSD 3-Clause")
         desc = shortDesc
 
         version.apply {
             name = artifactVersion
             desc = repoUrl
+            released = Date().toString()
             vcsTag = artifactVersion
         }
     }
+}
+
+artifacts {
+    add("archives", tasks["jar"])
+    add("archives", tasks["sourceJar"])
 }
 
 tasks.test {
