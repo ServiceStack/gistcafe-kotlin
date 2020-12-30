@@ -5,7 +5,7 @@ plugins {
     java
     maven
     `maven-publish`
-    id("com.jfrog.bintray") version "1.8.0"
+    id("com.jfrog.bintray") version "1.8.1"
 }
 
 val artifactId = "gistcafe"
@@ -14,6 +14,10 @@ val repoUrl = "https://github.com/$repoName"
 val orgName = "ServiceStack"
 val shortDesc = "gist.cafe utils for Kotlin"
 val artifactVersion = version.toString()
+
+val bintrayUpload: com.jfrog.bintray.gradle.tasks.BintrayUploadTask by tasks
+val clean: Task by tasks
+val build: Task by tasks
 
 repositories {
     jcenter()
@@ -24,44 +28,13 @@ tasks {
         archiveClassifier.set("sources")
         from(sourceSets["main"].allSource)
     }
+    create<Jar>("javadocJar") {
+        dependsOn.add(javadoc)
+        archiveClassifier.set("javadoc")
+        from(javadoc)
+    }
     withType<Jar> {
         archiveBaseName.set(artifactId)
-    }
-}
-
-task("generatePom") {
-    doLast {
-        println("Generating the Maven POM file.")
-        maven.pom {
-            project {
-                withGroovyBuilder {
-                    "name"(artifactId)
-                    "description"(shortDesc)
-                    "url"("https://github.com/$repoName")
-                    "licenses" {
-                        "license" {
-                            "name"("The 3-Clause BSD License")
-                            "url"("https://opensource.org/licenses/BSD-3-Clause")
-                            "distribution"("repo")
-                        }
-                    }
-                    "developers" {
-                        "developer" {
-                            "id"(orgName)
-                            "name"("$orgName, Inc.")
-                            "email"("team@servicestack.net")
-                        }
-                    }
-                    "scm" {
-                        "connection"("scm:git:git://github.com/$repoName.git")
-                        "developerConnection"("scm:git:ssh://github.com/$repoName.git")
-                        "url"(repoUrl)
-                    }
-                }
-            }
-        }
-        .writeTo("META-INF/maven/${project.group}/${project.name}")
-        .writeTo("$buildDir/pom.xml")
     }
 }
 
@@ -111,6 +84,48 @@ publishing {
     }
 }
 
+bintrayUpload.apply {
+    dependsOn(clean)
+    dependsOn(build)
+    build.mustRunAfter(clean)
+
+    onlyIf { System.getenv("BINTRAY_USER").isNotEmpty() }
+    onlyIf { System.getenv("BINTRAY_APIKEY").isNotEmpty() }
+
+    doFirst {
+        println("Generating Maven POM file to $buildDir/poms/pom-default.xml")
+        maven.pom {
+            project {
+                withGroovyBuilder {
+                    "name"(artifactId)
+                    "description"(shortDesc)
+                    "url"("https://github.com/$repoName")
+                    "licenses" {
+                        "license" {
+                            "name"("The 3-Clause BSD License")
+                            "url"("https://opensource.org/licenses/BSD-3-Clause")
+                            "distribution"("repo")
+                        }
+                    }
+                    "developers" {
+                        "developer" {
+                            "id"(orgName)
+                            "name"("$orgName, Inc.")
+                            "email"("team@servicestack.net")
+                        }
+                    }
+                    "scm" {
+                        "connection"("scm:git:git://github.com/$repoName.git")
+                        "developerConnection"("scm:git:ssh://github.com/$repoName.git")
+                        "url"(repoUrl)
+                    }
+                }
+            }
+        }
+        .writeTo("$buildDir/poms/pom-default.xml")
+    }
+}
+
 bintray {
     user = System.getenv("BINTRAY_USER")
     key = System.getenv("BINTRAY_APIKEY")
@@ -154,6 +169,7 @@ bintray {
 artifacts {
     add("archives", tasks["jar"])
     add("archives", tasks["sourceJar"])
+    add("archives", tasks["javadocJar"])
 }
 
 tasks.test {
