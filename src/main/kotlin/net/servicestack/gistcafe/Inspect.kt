@@ -3,8 +3,11 @@ package net.servicestack.gistcafe
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
+import java.io.BufferedReader
 import java.io.FileWriter
+import java.io.InputStreamReader
 import java.lang.StringBuilder
+import java.net.URL
 import java.nio.file.Files
 import java.nio.file.Paths
 import kotlin.math.abs
@@ -203,6 +206,21 @@ class Inspect {
             val gson = Gson()
             val json = gson.toJson(obj)
             return gson.fromJson(json, object : TypeToken<Map<String, Any?>>() {}.type)
+        }
+
+        /**
+         * Helper to download the text contents of a URL, because Java needs it.
+         * @param url the URL to download
+         */
+        @JvmStatic fun readUrlAsText(url: URL): String {
+            val sb = StringBuilder()
+            BufferedReader(InputStreamReader(url.openStream())).use { reader ->
+                var line: String?
+                while (reader.readLine().also { line = it } != null) {
+                    sb.append(line)
+                }
+            }
+            return sb.toString()
         }
     }
 }
