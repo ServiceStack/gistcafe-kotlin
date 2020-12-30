@@ -47,7 +47,7 @@ class Inspect {
          * Return the contents of any JSON serializable object in a human-friendly, readable format
          * @param obj the object to serialize
          */
-        @JvmStatic inline fun <reified T> dump(obj: T): String {
+        @JvmStatic fun <T> dump(obj: T): String {
             val gson = GsonBuilder().setPrettyPrinting().create()
             val json = gson.toJson(obj)
             return json.replace("\"","")
@@ -57,13 +57,13 @@ class Inspect {
          * Prints the contents of any JSON serializable object in a human-friendly, readable format
          * @param obj the object to serialize
          */
-        @JvmStatic inline fun <reified T> printDump(obj: T) = println(dump(obj))
+        @JvmStatic fun <T> printDump(obj: T) = println(dump(obj))
 
         /**
          * Return the list of JSON serializable objects into a human-friendly Ascii Table
          * @param objs the rows to use in the Ascii Table
          */
-        @JvmStatic inline fun <reified T> dumpTable(objs: Iterable<T>, headers:Iterable<String>? = null): String {
+        @JvmStatic fun <T> dumpTable(objs: Iterable<T>, headers:Iterable<String>? = null): String {
             val rows = objs.toList()
             val mapRows = toListMap(rows)
             val keys = headers ?: allKeys(mapRows)
@@ -114,7 +114,7 @@ class Inspect {
          * Return the list of JSON serializable objects into a human-friendly Ascii Table
          * @param objs the rows to use in the Ascii Table
          */
-        @JvmStatic inline fun <reified T> printDumpTable(objs: Iterable<T>, headers:Iterable<String>? = null) = println(dumpTable(objs, headers))
+        @JvmStatic fun <T> printDumpTable(objs: Iterable<T>, headers:Iterable<String>? = null) = println(dumpTable(objs, headers))
 
         fun allKeys(rows: List<Map<String, Any?>>): List<String> {
             val to = ArrayList<String>()
@@ -189,7 +189,7 @@ class Inspect {
          * Return list of objects into an untyped Map
          * @param objs target List
          */
-        @JvmStatic inline fun <reified T> toListMap(objs: List<T>): List<Map<String, Any?>> {
+        @JvmStatic fun <T> toListMap(objs: List<T>): List<Map<String, Any?>> {
             val gson = Gson()
             val json = gson.toJson(objs)
             return gson.fromJson(json, object : TypeToken<List<Map<String, Any?>>>() {}.type)
@@ -199,7 +199,7 @@ class Inspect {
          * Return object into an untyped Map
          * @param objs target object
          */
-        @JvmStatic inline fun <reified T> toMap(obj: T): Map<String, Any?> {
+        @JvmStatic fun <T> toMap(obj: T): Map<String, Any?> {
             val gson = Gson()
             val json = gson.toJson(obj)
             return gson.fromJson(json, object : TypeToken<Map<String, Any?>>() {}.type)
