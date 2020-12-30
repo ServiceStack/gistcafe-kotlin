@@ -8,10 +8,17 @@ import java.nio.file.Paths
 import kotlin.math.abs
 import kotlin.math.floor
 
+/**
+ * Helper utility for inspecting variables
+ */
 class Inspect {
 
     companion object {
 
+        /**
+         * Serialize named args to path in $INSPECT_VARS (if exists)
+         * @param args Map of args to serialize
+         */
         @JvmStatic fun vars(args: Map<String, Any?>) {
             var inspectVarsPath : String = System.getenv("INSPECT_VARS") ?: return
 
@@ -34,14 +41,26 @@ class Inspect {
             }
         }
 
+        /**
+         * Return the contents of any JSON serializable object in a human-friendly, readable format
+         * @param obj the object to serialize
+         */
         @JvmStatic inline fun <reified T> dump(obj: T): String {
             val gson = GsonBuilder().setPrettyPrinting().create()
             val json = gson.toJson(obj)
             return json.replace("\"","")
         }
 
+        /**
+         * Prints the contents of any JSON serializable object in a human-friendly, readable format
+         * @param obj the object to serialize
+         */
         @JvmStatic inline fun <reified T> printDump(obj: T) = println(dump(obj))
 
+        /**
+         * Return the list of JSON serializable objects into a human-friendly Ascii Table
+         * @param objs the rows to use in the Ascii Table
+         */
         @JvmStatic inline fun <reified T> dumpTable(objs: Iterable<T>, headers:Iterable<String>? = null): String {
             val rows = objs.toList()
             val mapRows = toListMap(rows)
@@ -89,6 +108,10 @@ class Inspect {
             return sb.toString()
         }
 
+        /**
+         * Return the list of JSON serializable objects into a human-friendly Ascii Table
+         * @param objs the rows to use in the Ascii Table
+         */
         @JvmStatic inline fun <reified T> printDumpTable(objs: Iterable<T>, headers:Iterable<String>? = null) = println(dumpTable(objs, headers))
 
         fun allKeys(rows: List<Map<String, Any?>>): List<String> {
@@ -103,6 +126,10 @@ class Inspect {
             return to
         }
 
+        /**
+         * Return if the object is a numeric type
+         * @param obj target object
+         */
         @JvmStatic fun isNumber(obj: Any) : Boolean {
             return when(obj) {
                 is Long -> true
@@ -156,12 +183,20 @@ class Inspect {
             return str;
         }
 
+        /**
+         * Return list of objects into an untyped Map
+         * @param objs target List
+         */
         @JvmStatic inline fun <reified T> toListMap(objs: List<T>): List<Map<String, Any?>> {
             val gson = Gson()
             val json = gson.toJson(objs)
             return gson.fromJson(json, object : TypeToken<List<Map<String, Any?>>>() {}.type)
         }
 
+        /**
+         * Return object into an untyped Map
+         * @param objs target object
+         */
         @JvmStatic inline fun <reified T> toMap(obj: T): Map<String, Any?> {
             val gson = Gson()
             val json = gson.toJson(obj)
