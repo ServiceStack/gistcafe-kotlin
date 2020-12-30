@@ -3,6 +3,7 @@ import java.util.*
 plugins {
     kotlin("jvm") version "1.4.21"
     java
+    maven
     `maven-publish`
     id("com.jfrog.bintray") version "1.8.0"
 }
@@ -25,6 +26,42 @@ tasks {
     }
     withType<Jar> {
         archiveBaseName.set(artifactId)
+    }
+}
+
+task("generatePom") {
+    doLast {
+        println("Generating the Maven POM file.")
+        maven.pom {
+            project {
+                withGroovyBuilder {
+                    "name"(artifactId)
+                    "description"(shortDesc)
+                    "url"("https://github.com/$repoName")
+                    "licenses" {
+                        "license" {
+                            "name"("The 3-Clause BSD License")
+                            "url"("https://opensource.org/licenses/BSD-3-Clause")
+                            "distribution"("repo")
+                        }
+                    }
+                    "developers" {
+                        "developer" {
+                            "id"(orgName)
+                            "name"("$orgName, Inc.")
+                            "email"("team@servicestack.net")
+                        }
+                    }
+                    "scm" {
+                        "connection"("scm:git:git://github.com/$repoName.git")
+                        "developerConnection"("scm:git:ssh://github.com/$repoName.git")
+                        "url"(repoUrl)
+                    }
+                }
+            }
+        }
+        .writeTo("META-INF/maven/${project.group}/${project.name}")
+        .writeTo("$buildDir/pom.xml")
     }
 }
 
@@ -99,6 +136,17 @@ bintray {
             desc = repoUrl
             released = Date().toString()
             vcsTag = artifactVersion
+
+            gpg.apply {
+                sign = true
+            }
+
+            mavenCentralSync.apply {
+                sync = true
+                user = System.getenv("OSSRH_USER")
+                password = System.getenv("OSSRH_PASS")
+                close = "1"
+            }
         }
     }
 }
