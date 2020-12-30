@@ -1,7 +1,8 @@
+import org.junit.jupiter.api.Test
 import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
-import org.junit.jupiter.api.Test
 import java.net.URL
+import net.servicestack.gistcafe.*
 
 data class GithubRepo(
     val name: String,
