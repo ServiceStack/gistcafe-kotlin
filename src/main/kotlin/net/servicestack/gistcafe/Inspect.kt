@@ -157,9 +157,9 @@ class Inspect {
 
         private fun alignLeft(str: String, len: Int, pad: String = " ") : String {
             if (len < 0) return "";
-            val alen = len + 1 - str.length;
-            if (alen <= 0) return str;
-            return pad + str + (pad.repeat(len + 1 - str.length));
+            val aLen = len + 1 - str.length;
+            if (aLen <= 0) return str;
+            return pad + str + (pad.repeat(aLen));
         }
 
         fun alignCenter(str: String, len: Int, pad: String = " ") : String {
@@ -172,9 +172,9 @@ class Inspect {
 
         private fun alignRight(str: String, len: Int, pad: String = " ") : String {
             if (len < 0) return ""
-            val alen = len + 1 - str.length
-            if (alen <= 0) return str
-            return pad.repeat(len + 1 - str.length) + str + pad
+            val aLen = len + 1 - str.length
+            if (aLen <= 0) return str
+            return pad.repeat(aLen) + str + pad
         }
 
         fun alignAuto(obj: Any?, len: Int, pad: String = " ") : String {
